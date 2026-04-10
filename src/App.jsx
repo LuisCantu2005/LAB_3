@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase-client'
 import './App.css'
 
@@ -6,11 +6,7 @@ function App() {
   const [pendientes, setPendientes] = useState([])
   const [nuevoRegistro, setNuevoRegistro] = useState('')
 
-  useEffect(() => {
-    consultarRegistros()
-  }, [])
-
-  async function consultarRegistros() {
+  const consultarRegistros = useCallback(async () => {
     const { data, error } = await supabase
       .from('pendientes')
       .select('*')
@@ -22,7 +18,15 @@ function App() {
     }
 
     setPendientes(data ?? [])
-  }
+  }, [])
+
+  useEffect(() => {
+    const cargar = async () => {
+      await consultarRegistros()
+    }
+
+    cargar()
+  }, [consultarRegistros])
 
   async function agregarRegistro() {
     const nombreLimpio = nuevoRegistro.trim()
